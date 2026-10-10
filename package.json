@@ -1,0 +1,14 @@
+{
+  "name": "bookbuddy-practical-5-express",
+  "version": "1.0.0",
+  "description": "BookBuddy multi-page application demonstrating Express.js server-side validation",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2"
+  }
+}
