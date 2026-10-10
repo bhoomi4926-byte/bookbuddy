@@ -1,0 +1,237 @@
+/* =========================================================
+   Book Buddy — custom styling
+   Bootstrap (loaded via CDN in index.html) handles layout,
+   grid, buttons and form resets. Everything here is the
+   purple "brand" on top of that: colors, gradients, shapes,
+   plus the small bits Bootstrap doesn't provide out of the
+   box (validation error text, active-filter state, toasts).
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background: linear-gradient(to bottom, #f3e8ff, #f8f1ff);
+    color: #4b0082;
+    padding: 0 0 30px;
+}
+
+h1, h2 {
+    color: #5b2c83;
+}
+
+/* ---------- Navbar ---------- */
+.navbar-purple {
+    background: linear-gradient(to right, #6f3fa0, #b57edc);
+}
+
+.navbar-purple .navbar-brand,
+.navbar-purple .nav-link {
+    color: #ffffff !important;
+    font-weight: bold;
+}
+
+.navbar-purple .nav-link:hover {
+    color: #f2e6ff !important;
+}
+
+/* ---------- Banner ---------- */
+.banner {
+    background: linear-gradient(to right, #b57edc, #7b4bb6);
+    color: white;
+    border-radius: 20px;
+    padding: 50px 20px;
+    margin: 20px auto;
+    max-width: 1000px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(128, 90, 213, 0.2);
+}
+
+.banner h1 {
+    color: white;
+    margin-bottom: 10px;
+}
+
+.banner p {
+    font-size: 18px;
+    margin-bottom: 0;
+}
+
+/* ---------- Section cards (profile / add-book / filters) ---------- */
+.profile-section,
+.add-book-section,
+.genre-section,
+.language-section {
+    background: #fff;
+    border: 1px solid #dcc5f7;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 1000px;
+    box-shadow: 0 6px 18px rgba(128, 90, 213, 0.08);
+}
+
+.profile-image {
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(to right, #d9b3ff, #b57edc);
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.profile-text h2 {
+    margin: 0 0 5px;
+}
+
+.profile-text p {
+    margin: 0;
+    color: #6a5a7c;
+}
+
+/* ---------- Pill buttons (used for genre/language filters) ---------- */
+.pill-btn {
+    background: #f2e6ff;
+    color: #5b2c83;
+    border: 1px solid #d7bcf5;
+}
+
+.pill-btn:hover {
+    background: #e6d2fb;
+    color: #5b2c83;
+}
+
+/* Applied via JS when a filter pill is the active one */
+.pill-btn.active-filter {
+    background: #7b4bb6;
+    color: white !important;
+    border-color: #7b4bb6;
+}
+
+/* ---------- Book cards ---------- */
+.book-card {
+    border: 1px solid #d8c2f5 !important;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(128, 90, 213, 0.12) !important;
+}
+
+.book-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #4b0082;
+}
+
+.book-author {
+    font-size: 16px;
+    color: #7a5ca8;
+}
+
+.book-image {
+    height: 220px;
+    object-fit: cover;
+    border-bottom: 2px solid #d9b3ff;
+}
+
+.book-description {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #4d3f5e;
+}
+
+.review-btn {
+    background: linear-gradient(to right, #b57edc, #7b4bb6);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(123, 75, 182, 0.25);
+}
+
+.review-btn:hover {
+    background: linear-gradient(to right, #9d68ca, #6d3fa4);
+    color: white;
+}
+
+.delete-book-btn {
+    color: #a33d5a;
+    border-color: #e3b3c4;
+    background: #fdf0f4;
+}
+
+.delete-book-btn:hover {
+    background: #f8dbe4;
+}
+
+.rating-badge {
+    background: #fff3cd;
+    color: #7a5c00;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 13px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.review-item {
+    background: #f8f1ff;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+/* ---------- Validation error text ---------- */
+.error-text {
+    color: #b3223a;
+    font-size: 13px;
+    margin-top: 4px;
+    min-height: 16px;
+}
+
+/* Bootstrap's .is-invalid already redddens the border on inputs/selects;
+   this just makes it play nicely with our custom fonts/colors */
+.is-invalid {
+    border-color: #b3223a !important;
+}
+
+/* ---------- Form-level success/error banner ---------- */
+.form-alert {
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    font-weight: bold;
+}
+
+.form-alert.success {
+    background: #e3f7e9;
+    color: #1e7a3d;
+    border: 1px solid #b6e6c4;
+}
+
+.form-alert.error {
+    background: #fbe3e8;
+    color: #a3213c;
+    border: 1px solid #f0b8c4;
+}
+
+/* ---------- Footer ---------- */
+footer {
+    background: #4b0082;
+    color: #f2e6ff;
+    text-align: center;
+    padding: 20px;
+    margin-top: 30px;
+    border-radius: 20px 20px 0 0;
+}
+
+footer a {
+    color: #d9b3ff;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}

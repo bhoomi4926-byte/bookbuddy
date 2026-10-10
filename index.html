@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Buddy</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- React will draw the entire page inside this one div -->
+    <div id="root"></div>
+
+    <!-- React + Babel (Babel lets the browser understand JSX) -->
+    <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.25.6/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        /* ---------- DATA ---------- */
+        const STORAGE_KEY = "bookBuddyReactData";
+
+        const defaultBooks = [
+            {
+                id: 1, title: "The Malgudi Days", author: "Raja Rao", genre: "Fiction", language: "English",
+                image: "https://www.ultraindia.com/wp-content/uploads/2023/10/malgudi-scaled.jpg",
+                description: "A collection of interconnected stories that portray the lives of people in the fictional town of Malgudi, India. The narratives explore themes of tradition, modernity, and the human condition in a changing society.",
+                reviews: []
+            },
+            {
+                id: 2, title: "One Indian Girl", author: "Chetan Bhagat", genre: "Romance", language: "English",
+                image: "https://upload.wikimedia.org/wikipedia/en/9/94/One_Indian_Girl.jpg",
+                description: "A contemporary novel exploring identity, relationships, and the challenges faced by women in modern Indian society. It offers a relatable and engaging narrative.",
+                reviews: []
+            },
+            {
+                id: 3, title: "The Alchemist", author: "Paulo Coelho", genre: "Fantasy", language: "English",
+                image: "https://m.media-amazon.com/images/I/71+2-t7M35L.jpg",
+                description: "A philosophical novel about destiny, dreams, and personal growth. It follows Santiago on a journey that inspires readers to pursue their purpose.",
+                reviews: []
+            }
+        ];
+
+        const GENRES = ["Fiction", "Romance", "Mystery", "Fantasy", "Drama", "Non-fiction"];
+        const LANGUAGES = ["English", "Hindi", "Marathi"];
+
+        // JSON.parse: saved text -> real array (runs once when the app starts)
+        function loadBooks() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try { return JSON.parse(saved); } catch (e) { /* broken data: use defaults */ }
+            }
+            return defaultBooks;
+        }
+
+        /* ---------- NAVBAR ---------- */
+        function Navbar() {
+            const [open, setOpen] = useState(false);   // is the mobile menu open?
+            return (
+                <header>
+                    <nav className="navbar navbar-expand-md navbar-purple">
+                        <div className="container">
+                            <a className="navbar-brand" href="#top">📚 Book Buddy</a>
+                            <button className="navbar-toggler bg-light" type="button"
+                                    aria-label="Toggle navigation" onClick={() => setOpen(!open)}>
+                                <span className="navbar-toggler-icon"></span>
+                            </button>
+                            <div className={"collapse navbar-collapse " + (open ? "show" : "")}>
+                                <ul className="navbar-nav ms-auto gap-md-3">
+                                    <li className="nav-item"><a className="nav-link" href="#profile" onClick={() => setOpen(false)}>Profile</a></li>
+                                    <li className="nav-item"><a className="nav-link" href="#addBook" onClick={() => setOpen(false)}>Add Book</a></li>
+                                    <li className="nav-item"><a className="nav-link" href="#books" onClick={() => setOpen(false)}>Books</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </nav>
+                </header>
+            );
+        }
+
+        /* ---------- FOOTER ---------- */
+        function Footer() {
+            return (
+                <footer>
+                    <p className="mb-1">Made with 💜 by Bhoomi Raut</p>
+                    <p className="mb-0">
+                        <a href="#profile">Profile</a> &middot; <a href="#addBook">Add Book</a> &middot; <a href="#books">Books</a>
+                    </p>
+                    <p className="mb-0 mt-2" style={{ fontSize: 14 }}>&copy; 2026 Book Buddy. All rights reserved.</p>
+                </footer>
+            );
+        }
+
+        /* ---------- FILTER PILLS (reused for genre AND language) ---------- */
+        function FilterPills({ title, options, active, onSelect }) {
+            return (
+                <section className="genre-section">
+                    <h2>{title}</h2>
+                    <div className="d-flex flex-wrap gap-2 mt-2">
+                        {options.map((option) => (
+                            <button key={option} type="button"
+                                    className={"btn pill-btn rounded-pill fw-bold " + (active === option ? "active-filter" : "")}
+                                    onClick={() => onSelect(option)}>
+                                {option}
+                            </button>
+                        ))}
+                    </div>
+                </section>
+            );
+        }
+
+        /* ---------- REVIEW FORM (inside each book card) ---------- */
+        function validateReview(rating, text) {
+            const errors = {};
+            if (!rating) errors.rating = "Please choose a star rating.";
+            if (!text.trim()) errors.text = "Write a short review before submitting.";
+            else if (text.trim().length < 5) errors.text = "Review must be at least 5 characters.";
+            return errors;
+        }
+
+        function ReviewForm({ onSubmit }) {
+            const [rating, setRating] = useState("");
+            const [text, setText] = useState("");
+            const [errors, setErrors] = useState({});
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                const found = validateReview(rating, text);
+                setErrors(found);
+                if (Object.keys(found).length > 0) return;      // invalid: stop
+
+                onSubmit({ rating: Number(rating), text: text.trim(), date: new Date().toLocaleDateString() });
+                setRating("");
+                setText("");
+            };
+
+            return (
+                <form className="mt-3" onSubmit={handleSubmit} noValidate>
+                    <label className="form-label" style={{ fontSize: 14 }}>Your rating</label>
+                    <select className={"form-select form-select-sm " + (errors.rating ? "is-invalid" : "")}
+                            value={rating} onChange={(e) => setRating(e.target.value)}>
+                        <option value="">Choose...</option>
+                        <option value="5">★★★★★ (5)</option>
+                        <option value="4">★★★★☆ (4)</option>
+                        <option value="3">★★★☆☆ (3)</option>
+                        <option value="2">★★☆☆☆ (2)</option>
+                        <option value="1">★☆☆☆☆ (1)</option>
+                    </select>
+                    <div className="error-text">{errors.rating}</div>
+
+                    <label className="form-label" style={{ fontSize: 14 }}>Your review</label>
+                    <textarea className={"form-control form-control-sm " + (errors.text ? "is-invalid" : "")}
+                              rows="2" placeholder="What did you think?"
+                              value={text} onChange={(e) => setText(e.target.value)} />
+                    <div className="error-text">{errors.text}</div>
+
+                    <button type="submit" className="btn btn-sm review-btn mt-2">Submit Review</button>
+                </form>
+            );
+        }
+
+        /* ---------- BOOK CARD ---------- */
+        function averageRating(reviews) {
+            if (reviews.length === 0) return null;
+            const sum = reviews.reduce((total, r) => total + r.rating, 0);
+            return (sum / reviews.length).toFixed(1);
+        }
+
+        function ratingText(avg) {
+            if (avg === null) return "No ratings yet";
+            const rounded = Math.round(avg);
+            return "★".repeat(rounded) + "☆".repeat(5 - rounded) + " (" + avg + ")";
+        }
+
+        function BookCard({ book, onDelete, onAddReview }) {
+            const [showForm, setShowForm] = useState(false);   // is the review form open?
+            const [message, setMessage] = useState("");        // success message
+
+            const avg = averageRating(book.reviews);
+
+            const handleReviewSubmit = (review) => {
+                onAddReview(book.id, review);
+                setShowForm(false);
+                setMessage("Thanks! Your review was added.");
+                setTimeout(() => setMessage(""), 3000);
+            };
+
+            const handleDelete = () => {
+                if (window.confirm('Remove "' + book.title + '" from your shelf?')) onDelete(book.id);
+            };
+
+            return (
+                <div className="card h-100 shadow-sm border-0 book-card">
+                    <img className="card-img-top book-image" src={book.image} alt={book.title} />
+                    <div className="card-body d-flex flex-column">
+                        <div className="d-flex justify-content-between align-items-start">
+                            <h5 className="book-title mb-1">{book.title}</h5>
+                            <button className="btn btn-sm delete-book-btn" title="Remove book" onClick={handleDelete}>✕</button>
+                        </div>
+                        <p className="book-author">by {book.author}</p>
+                        <span className="rating-badge mb-2">{ratingText(avg)}</span>
+                        <p className="book-description">{book.description}</p>
+
+                        <div className="mb-2">
+                            {book.reviews.length === 0 ? (
+                                <p className="text-muted" style={{ fontSize: 14 }}>No reviews yet. Be the first!</p>
+                            ) : (
+                                book.reviews.map((r, index) => (
+                                    <div className="review-item" key={index}>
+                                        <strong>{"★".repeat(r.rating)}</strong> — {r.text}
+                                        <div style={{ fontSize: 12, color: "#8a7a9a" }}>{r.date}</div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {message && <div className="form-alert success">{message}</div>}
+
+                        <button className="btn review-btn mt-auto align-self-start" onClick={() => setShowForm(!showForm)}>
+                            Review &amp; Rate
+                        </button>
+
+                        {showForm && <ReviewForm onSubmit={handleReviewSubmit} />}
+                    </div>
+                </div>
+            );
+        }
+
+        /* ---------- ADD BOOK FORM ---------- */
+        const emptyForm = { title: "", author: "", genre: "", language: "", image: "", description: "" };
+
+        function validateBook(v) {
+            const errors = {};
+            if (!v.title.trim()) errors.title = "Title is required.";
+            else if (v.title.trim().length < 2) errors.title = "Title must be at least 2 characters.";
+
+            if (!v.author.trim()) errors.author = "Author is required.";
+            if (!v.genre) errors.genre = "Please choose a genre.";
+            if (!v.language) errors.language = "Please choose a language.";
+
+            if (!v.image.trim()) {
+                errors.image = "Cover image URL is required.";
+            } else {
+                try { new URL(v.image.trim()); }
+                catch (e) { errors.image = "Enter a valid URL, starting with http:// or https://"; }
+            }
+
+            if (!v.description.trim()) errors.description = "Description is required.";
+            else if (v.description.trim().length < 20) errors.description = "Description should be at least 20 characters.";
+
+            return errors;
+        }
+
+        function AddBookForm({ onAdd }) {
+            const [values, setValues] = useState(emptyForm);   // what the user typed
+            const [errors, setErrors] = useState({});          // validation messages
+            const [success, setSuccess] = useState("");        // confirmation message
+
+            // One handler for every input: each input's `name` matches a key in `values`
+            const handleChange = (e) => {
+                const { name, value } = e.target;
+                setValues({ ...values, [name]: value });
+                if (errors[name]) setErrors({ ...errors, [name]: undefined });  // clear that error while typing
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setSuccess("");
+
+                const found = validateBook(values);
+                setErrors(found);
+                if (Object.keys(found).length > 0) return;       // invalid: stop
+
+                onAdd({
+                    title: values.title.trim(), author: values.author.trim(),
+                    genre: values.genre, language: values.language,
+                    image: values.image.trim(), description: values.description.trim()
+                });
+                setSuccess('"' + values.title.trim() + '" was added to your shelf!');
+                setValues(emptyForm);
+                setTimeout(() => setSuccess(""), 4000);
+            };
+
+            const hasErrors = Object.values(errors).some(Boolean);
+            const cls = (name, base) => base + " " + (errors[name] ? "is-invalid" : "");
+
+            return (
+                <section className="add-book-section" id="addBook">
+                    <h2>Add a New Book</h2>
+                    <p className="text-muted">Fill this in and it's validated before it's added to your shelf.</p>
+
+                    {success && <div className="form-alert success" role="status">{success}</div>}
+                    {hasErrors && <div className="form-alert error" role="alert">Please fix the errors below before saving.</div>}
+
+                    <form onSubmit={handleSubmit} noValidate>
+                        <div className="row g-3">
+                            <div className="col-12 col-md-6">
+                                <label htmlFor="title" className="form-label">Title</label>
+                                <input id="title" name="title" type="text" placeholder="e.g. Norwegian Wood"
+                                       className={cls("title", "form-control")} value={values.title} onChange={handleChange} />
+                                <div className="error-text">{errors.title}</div>
+                            </div>
+
+                            <div className="col-12 col-md-6">
+                                <label htmlFor="author" className="form-label">Author</label>
+                                <input id="author" name="author" type="text" placeholder="e.g. Haruki Murakami"
+                                       className={cls("author", "form-control")} value={values.author} onChange={handleChange} />
+                                <div className="error-text">{errors.author}</div>
+                            </div>
+
+                            <div className="col-12 col-md-6">
+                                <label htmlFor="genre" className="form-label">Genre</label>
+                                <select id="genre" name="genre" className={cls("genre", "form-select")}
+                                        value={values.genre} onChange={handleChange}>
+                                    <option value="">Choose a genre...</option>
+                                    {GENRES.map((g) => <option key={g} value={g}>{g}</option>)}
+                                </select>
+                                <div className="error-text">{errors.genre}</div>
+                            </div>
+
+                            <div className="col-12 col-md-6">
+                                <label htmlFor="language" className="form-label">Language</label>
+                                <select id="language" name="language" className={cls("language", "form-select")}
+                                        value={values.language} onChange={handleChange}>
+                                    <option value="">Choose a language...</option>
+                                    {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
+                                </select>
+                                <div className="error-text">{errors.language}</div>
+                            </div>
+
+                            <div className="col-12">
+                                <label htmlFor="image" className="form-label">Cover Image URL</label>
+                                <input id="image" name="image" type="text" placeholder="https://..."
+                                       className={cls("image", "form-control")} value={values.image} onChange={handleChange} />
+                                <div className="error-text">{errors.image}</div>
+                            </div>
+
+                            <div className="col-12">
+                                <label htmlFor="description" className="form-label">Description</label>
+                                <textarea id="description" name="description" rows="3" placeholder="At least 20 characters..."
+                                          className={cls("description", "form-control")} value={values.description} onChange={handleChange} />
+                                <div className="error-text">{errors.description}</div>
+                            </div>
+
+                            <div className="col-12">
+                                <button type="submit" className="btn review-btn">Add Book to Shelf</button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            );
+        }
+
+        /* ---------- APP (owns all the data) ---------- */
+        function App() {
+            const [books, setBooks] = useState(loadBooks);
+            const [genreFilter, setGenreFilter] = useState(null);
+            const [languageFilter, setLanguageFilter] = useState(null);
+            const [search, setSearch] = useState("");
+
+            // JSON.stringify: array -> text. Runs every time `books` changes.
+            useEffect(() => {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+            }, [books]);
+
+            const addBook = (newBook) => setBooks([...books, { ...newBook, id: Date.now(), reviews: [] }]);
+            const deleteBook = (id) => setBooks(books.filter((b) => b.id !== id));
+            const addReview = (id, review) =>
+                setBooks(books.map((b) => (b.id === id ? { ...b, reviews: [...b.reviews, review] } : b)));
+
+            const toggleGenre = (g) => setGenreFilter(genreFilter === g ? null : g);
+            const toggleLanguage = (l) => setLanguageFilter(languageFilter === l ? null : l);
+
+            const genres = [...new Set(books.map((b) => b.genre))];
+            const languages = [...new Set(books.map((b) => b.language))];
+
+            const term = search.trim().toLowerCase();
+            const visibleBooks = books.filter((b) =>
+                (!genreFilter || b.genre === genreFilter) &&
+                (!languageFilter || b.language === languageFilter) &&
+                (!term || b.title.toLowerCase().includes(term) || b.author.toLowerCase().includes(term))
+            );
+
+            return (
+                <div id="top">
+                    <Navbar />
+                    <main>
+                        <div className="banner container">
+                            <h1>Book Buddy</h1>
+                            <p>This is your companion to read, review and explore books</p>
+                        </div>
+
+                        <div className="container">
+                            <section className="profile-section" id="profile">
+                                <div className="d-flex align-items-center gap-3 flex-wrap">
+                                    <div className="profile-image rounded-circle d-flex align-items-center justify-content-center text-white">BR</div>
+                                    <div className="profile-text">
+                                        <h2>Reader Profile</h2>
+                                        <p>Name: Bhoomi Raut</p>
+                                        <p>Favorite Reads: Fiction, Romance, Classics</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <AddBookForm onAdd={addBook} />
+
+                            <FilterPills title="Filter by Genre" options={genres} active={genreFilter} onSelect={toggleGenre} />
+                            <FilterPills title="Filter by Language" options={languages} active={languageFilter} onSelect={toggleLanguage} />
+
+                            <div className="mt-4">
+                                <label htmlFor="search" className="form-label">Search by title or author</label>
+                                <input id="search" type="text" className="form-control" placeholder="Start typing..."
+                                       value={search} onChange={(e) => setSearch(e.target.value)} />
+                            </div>
+
+                            <h2 id="books" className="text-center mt-4">Book Reviews</h2>
+
+                            <div className="row g-4 mt-2">
+                                {visibleBooks.length === 0 ? (
+                                    <p className="text-center text-muted">No books match your filters/search.</p>
+                                ) : (
+                                    visibleBooks.map((book) => (
+                                        <div className="col-12 col-md-6 col-lg-4" key={book.id}>
+                                            <BookCard book={book} onDelete={deleteBook} onAddReview={addReview} />
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </main>
+                    <Footer />
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+</body>
+</html>
