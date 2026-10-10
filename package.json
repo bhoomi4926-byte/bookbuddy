@@ -1,0 +1,13 @@
+{
+  "name": "bookbuddy-practical-4-core-node-validation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BookBuddy extended with server-side validation using core Node.js only",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
