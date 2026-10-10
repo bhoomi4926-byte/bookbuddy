@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "title": "The Malgudi Days",
+    "author": "Raja Rao",
+    "genre": "Fiction",
+    "language": "English",
+    "image": "https://www.ultraindia.com/wp-content/uploads/2023/10/malgudi-scaled.jpg",
+    "description": "A collection of interconnected stories that portray the lives of people in the fictional town of Malgudi, India. The narratives explore themes of tradition, modernity, and the human condition in a changing society.",
+    "reviews": []
+  },
+  {
+    "id": 2,
+    "title": "One Indian Girl",
+    "author": "Chetan Bhagat",
+    "genre": "Romance",
+    "language": "English",
+    "image": "https://upload.wikimedia.org/wikipedia/en/9/94/One_Indian_Girl.jpg",
+    "description": "A contemporary novel exploring identity, relationships, and the challenges faced by women in modern Indian society. It offers a relatable and engaging narrative.",
+    "reviews": []
+  },
+  {
+    "id": 3,
+    "title": "The Alchemist",
+    "author": "Paulo Coelho",
+    "genre": "Fantasy",
+    "language": "English",
+    "image": "https://m.media-amazon.com/images/I/71+2-t7M35L.jpg",
+    "description": "A philosophical novel about destiny, dreams, and personal growth. It follows Santiago on a journey that inspires readers to pursue their purpose.",
+    "reviews": []
+  }
+]
