@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BookBuddy | Practical 7</title><link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar"><a class="brand" href="/">📚 BookBuddy</a><span class="tag">Practical 7 · NoSQL with Node.js</span></header>
+<main class="container">
+  <section class="hero"><div><p class="eyebrow">YOUR PERSONAL READING SPACE</p><h1>Every book has a story.<br><span>Keep yours here.</span></h1><p class="subtext">Add books, save reviews, and manage your collection using Node.js connected to MongoDB.</p></div><div class="hero-art">📖</div></section>
+  <section class="content-grid">
+    <div class="panel form-panel"><div class="section-heading"><div><p class="eyebrow">ADD TO YOUR SHELF</p><h2>Book details</h2></div><span class="round-icon">＋</span></div>
+      <form id="book-form"><input type="hidden" id="book-id">
+        <label for="title">Book title *</label><input id="title" required minlength="2" maxlength="100" placeholder="e.g. The Alchemist">
+        <label for="author">Author *</label><input id="author" required minlength="2" maxlength="80" placeholder="e.g. Paulo Coelho">
+        <div class="two-col"><div><label for="genre">Genre</label><select id="genre"><% ['Fiction','Mystery','Fantasy','Romance','Biography','Non-fiction','Drama','Other'].forEach(g => { %><option><%= g %></option><% }) %></select></div>
+        <div><label for="language">Language</label><select id="language"><% ['English','Hindi','Marathi','Other'].forEach(l => { %><option><%= l %></option><% }) %></select></div></div>
+        <label for="rating">Your rating</label><select id="rating"><option value="5">★★★★★ — Loved it</option><option value="4" selected>★★★★☆ — Great</option><option value="3">★★★☆☆ — Good</option><option value="2">★★☆☆☆ — Average</option><option value="1">★☆☆☆☆ — Not for me</option></select>
+        <label for="description">Short description</label><textarea id="description" rows="3" maxlength="800" placeholder="What is this book about?"></textarea>
+        <label for="review">Your review</label><textarea id="review" rows="3" maxlength="1000" placeholder="Share your thoughts..."></textarea>
+        <div class="form-actions"><button class="primary-btn" type="submit" id="submit-btn">Save book</button><button class="secondary-btn hidden" type="button" id="cancel-btn">Cancel edit</button></div>
+        <p class="form-message" id="form-message" role="status"></p><p class="hint">* Required fields. Records are saved in MongoDB Atlas.</p>
+      </form>
+    </div>
+    <div class="library"><div class="section-heading library-heading"><div><p class="eyebrow">YOUR COLLECTION</p><h2>Bookshelf <span class="count" id="book-count"><%= books.length %></span></h2></div><button class="secondary-btn" id="refresh-btn" type="button">↻ Refresh</button></div>
+      <div id="books-list" class="book-list">
+      <% if (!books.length) { %><div class="empty-state"><div>📚</div><h3>Your shelf is waiting</h3><p>Add your first book using the form.</p></div><% } else { %>
+        <% books.forEach(book => { %><article class="book-card" data-id="<%= book._id %>"><div class="book-cover"><span>BOOK<br>BUDDY</span></div><div class="book-info"><span class="genre-pill"><%= book.genre %></span><h3><%= book.title %></h3><p class="author">by <%= book.author %></p><p class="stars"><%= '★'.repeat(book.rating || 4) %><span><%= '☆'.repeat(5 - (book.rating || 4)) %></span></p>
+        <% if (book.description) { %><p class="description"><%= book.description %></p><% } %><% if (book.review) { %><p class="review">“<%= book.review %>”</p><% } %><div class="card-meta"><span><%= book.language %></span><span>Saved to MongoDB</span></div><div class="card-actions"><button type="button" class="edit-btn" data-action="edit" data-id="<%= book._id %>">Edit</button><button type="button" class="delete-btn" data-action="delete" data-id="<%= book._id %>">Delete</button></div></div></article><% }) %>
+      <% } %></div>
+    </div>
+  </section><footer>Built with Node.js · Express.js · MongoDB Atlas <span>Practical 7</span></footer>
+</main><script src="/script.js"></script>
+</body></html>

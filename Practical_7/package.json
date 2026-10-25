@@ -1,0 +1,20 @@
+{
+  "name": "bookbuddy-practical7-nosql",
+  "version": "1.0.0",
+  "description": "BookBuddy Practical 7: Node.js with MongoDB NoSQL",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "ejs": "^3.1.10",
+    "express": "^4.22.3",
+    "mongoose": "^8.24.7"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
